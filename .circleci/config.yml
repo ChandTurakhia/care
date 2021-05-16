@@ -62,19 +62,3 @@ workflows:
           resource-group: "${AZURE_RESOURCE_GROUP}"
           requires:
             - azure-acr/build-and-push-image
-      - azure-aks/update-container-image:
-          name: update-scheduler-staging
-          cluster-name: "${EKS_CLUSTER_NAME}"
-          container-image-updates: "${EKS_CONTAINER_NAME}=${AWS_ECR_ACCOUNT_URL}/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
-          resource-name: "${EKS_STAGING_SCHEDULER_NAME}"
-          resource-group: "${AZURE_RESOURCE_GROUP}"
-          requires:
-            - azure-acr/build-and-push-image
-      - azure-aks/update-container-image:
-          name: update-worker-staging
-          cluster-name: "${EKS_CLUSTER_NAME}"
-          container-image-updates: "${EKS_CONTAINER_NAME}=${AWS_ECR_ACCOUNT_URL}/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
-          resource-name: "${EKS_STAGING_WORKER_NAME}"
-          resource-group: "${AZURE_RESOURCE_GROUP}"
-          requires:
-            - azure-acr/build-and-push-image
