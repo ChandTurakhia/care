@@ -45,41 +45,36 @@ jobs:
 workflows:
   deploy-to-staging:
     jobs:
-      - aws-ecr/build-and-push-image:
-          account-url: AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          region: AWS_DEFAULT_REGION
+      - azure-acr/build-and-push-image:
+          login-server-name: csregistry2.azurecr.io
+          registry-name: csregistry2
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1},latest"
           # executor: main-executor
           filters:
             branches:
               only: master
-      - aws-eks/update-container-image:
+      - azure-aks/update-container-image:
           name: deploy-to-staging
           cluster-name: "${EKS_CLUSTER_NAME}"
-          aws-region: "${AWS_DEFAULT_REGION}"
           container-image-updates: "${EKS_CONTAINER_NAME}=${AWS_ECR_ACCOUNT_URL}/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
           resource-name: "${EKS_STAGING_DEPLOYMENT_NAME}"
           requires:
-            - aws-ecr/build-and-push-image
-      - aws-eks/update-container-image:
+            - azure-acr/build-and-push-image
+      - azure-aks/update-container-image:
           name: update-scheduler-staging
           cluster-name: "${EKS_CLUSTER_NAME}"
-          aws-region: "${AWS_DEFAULT_REGION}"
           container-image-updates: "${EKS_CONTAINER_NAME}=${AWS_ECR_ACCOUNT_URL}/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
           resource-name: "${EKS_STAGING_SCHEDULER_NAME}"
           requires:
-            - aws-ecr/build-and-push-image
+            - azure-acr/build-and-push-image
       - aws-eks/update-container-image:
           name: update-worker-staging
           cluster-name: "${EKS_CLUSTER_NAME}"
-          aws-region: "${AWS_DEFAULT_REGION}"
           container-image-updates: "${EKS_CONTAINER_NAME}=${AWS_ECR_ACCOUNT_URL}/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
           resource-name: "${EKS_STAGING_WORKER_NAME}"
           requires:
-            - aws-ecr/build-and-push-image
+            - azure-acr/build-and-push-image
   deploy-to-production:
     jobs:
       - aws-ecr/build-and-push-image:
